@@ -1,0 +1,29 @@
+#TIMEHORIZON
+T = 2 * 365 * 24; // number of hours in two years
+
+#NODE SOLAR
+#PARAMETERS
+    electricity_price = 0.0005;
+    demand = import "../data/demand.csv";
+    sun = import "../data/pv_data/pv_data.csv";
+    cost_per_panel = 150;
+#VARIABLES
+    internal: num_panels;
+    internal: solar_available[T];
+    internal: investment_cost;
+    internal: energy_cost;
+    internal: solar_used[T];
+    internal: grid_used[T]; 
+#CONSTRAINTS
+    num_panels >= 0;
+    num_panels <= 20;
+
+    solar_available[t] == sun[mod(t, 8784)]*num_panels; //8784 is the length of our solar data 
+    grid_used[t] == 1000*demand[mod(t, 24)]-solar_used[mod(t, 8784)]; // multiply demand by 1000, as it is in kW
+    solar_used[t] <= 1000*demand[mod(t, 24)];
+    solar_used[t] <= solar_available[mod(t, 8784)];
+    solar_used[t] >= 0;
+    investment_cost == num_panels * cost_per_panel;
+    energy_cost == electricity_price * sum(grid_used[mod(i, 8784)] for i in [0:T-1]);
+#OBJECTIVES
+    min: investment_cost + energy_cost;
