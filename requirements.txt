@@ -1,4 +1,6 @@
-gboml=0.1.8
-gurobipy=10.0.1
-numpy=1.22.3
-pandas=1.4.2
+gboml>=0.1.8
+gurobipy==10.0.1
+numpy>=1.22.3
+pandas>=1.4.2
+plotly>=5.7.0
+pre-commit>=3.3.2

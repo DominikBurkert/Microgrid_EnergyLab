@@ -1,0 +1,113 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
+#GLOBAL
+pi = 3.14;
+
+#NODE SOLAR_PV
+#PARAMETERS
+    capex = 1300; //kosten für 1kWp ca. 1300€
+    depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
+    annual_depreciation = capex / depreciation;
+    sun = import "../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
+#VARIABLES
+    internal: investment_cost;
+    internal: capacity; //capacity in kwP
+    external: solar_generated[T];
+#CONSTRAINTS
+    capacity >= 0;
+    capacity <= 100; 
+    solar_generated[t] == sun[mod(t, 8783)]*capacity; //8783 is the length of our solar data 
+    investment_cost == annual_depreciation * capacity;
+#OBJECTIVES
+    min: investment_cost;
+
+#NODE DEMAND_EL
+#PARAMETERS 
+    demand_el = import "../data/LastprofilHaushalt.csv";
+#VARIABLES
+    external: solar_used[T];
+    external: consumption_el[T];
+    internal : demand_el_gesamt;
+    internal: self_consumption;
+    internal: self_consumption_percentage;
+#CONSTRAINTS
+    solar_used[t] >= 0;
+    consumption_el[t] == demand_el[mod(t, 8760)]; //bei data demand_haushalt 8761
+    solar_used[t] <= consumption_el[t];
+    demand_el_gesamt == sum(DEMAND_EL.consumption_el[i] for i in [0:T-1]);
+    self_consumption == sum(solar_used[i] for i in [0:T-1]);
+    //future self_consumption
+    //self_consumption == sum(solar_used[i] + wind_used[i] for i in [0:T-1]);
+    
+    
+#HYPEREDGE ELECTRICITY
+#CONSTRAINTS
+
+    DISTRIBUTION_EL.electricity_import[t] == DEMAND_EL.consumption_el[t]-DEMAND_EL.solar_used[t];
+    DEMAND_EL.solar_used[t] <= SOLAR_PV.solar_generated[mod(t, 8760)];
+    
+    SOLAR_PV.solar_generated[t] + DISTRIBUTION_EL.electricity_import[t] <= DEMAND_EL.consumption_el[t];
+    DEMAND_EL.solar_used[t] + DISTRIBUTION_EL.electricity_import[t] <= DEMAND_EL.consumption_el[t];
+    
+
+#NODE DISTRIBUTION_EL
+#PARAMETERS
+    price_electricity = import "../data/electricity_market_prices_2019.csv";
+#VARIABLES
+    internal: operating_cost_electricity[T];
+    external: electricity_import[T];
+#CONSTRAINTS
+    electricity_import[t] >= 0;
+    //operating_cost_electricity == sum((price_electricity[mod(i,8736)] * electricity_import[mod(t, 8784)]) for i in [0:T-1]);
+    operating_cost_electricity[t] == price_electricity[mod(t,8760)] * electricity_import[mod(t, 8760)] * 5; //*5 -> DayAHead Preise machen ca. 20% des Strompreises aus. restliche 80% sind Steuern, Netzentgelte,...
+#OBJECTIVES
+    min: operating_cost_electricity[t];
+
+
+#NODE DEMAND_GAS
+#PARAMETERS 
+    demand_gas = import "../data/LastprofilHaushaltGas.csv";
+#VARIABLES
+    external: consumption_gas[T];
+#CONSTRAINTS
+    consumption_gas[t] == demand_gas[mod(t, 8711)];
+
+
+#NODE DEMAND_HEAT
+#PARAMETERS 
+    demand_heat = import "../data/LastprofilHaushaltGas.csv";
+#VARIABLES
+    external: consumption_heat[T];
+#CONSTRAINTS
+    consumption_heat[t] == demand_heat[mod(t, 8711)];
+
+#NODE DISTRIBUTION_GAS
+#PARAMETERS
+    price_gas = import "../data/electricity_market_prices_2019.csv"; //todo gas_price.csv
+#VARIABLES
+    internal: operating_cost_gas[T];
+    external: gas_import_amount[T];
+#CONSTRAINTS
+    gas_import_amount[t] >= 0;
+    operating_cost_gas[t] == price_gas[mod(t, 8760)] * gas_import_amount[t];
+#OBJECTIVES
+    min: operating_cost_gas[t];
+
+#NODE DISTRIBUTION_HEAT
+#PARAMETERS
+    price_heat = 0.0608; // 6,08ct/kWh -> 0.0608€/kWh
+#VARIABLES
+    internal: operating_cost_heat[T];
+    external: heat_import_amount[T];
+#CONSTRAINTS
+    heat_import_amount[t] >= 0;
+    operating_cost_heat[t] == price_heat * heat_import_amount[t];
+#OBJECTIVES
+    min: operating_cost_heat[t];
+
+
+#HYPEREDGE POWER_BALANCE
+#CONSTRAINTS
+    DISTRIBUTION_HEAT.heat_import_amount[t] == DEMAND_HEAT.consumption_heat[t];
+    DISTRIBUTION_GAS.gas_import_amount[t] == DEMAND_GAS.consumption_gas[t];
