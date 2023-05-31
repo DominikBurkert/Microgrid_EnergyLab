@@ -1,0 +1,33 @@
+// CO2 berücksichtingen
+// Investitionskosten 
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
+#NODE CHP_PLANT
+#PARAMETERS
+    demand_heat = import "../data/LastprofilHaushaltGas.csv";
+    capex = 20000 ; //kosten für einen BHKW mit 10 kW 
+    depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
+    annual_depreciation = capex / depreciation;
+    //capacity = 10; // kWel (Mikro-BHKW)
+    heating_value = 10.5; // Heating value: 10-11.1 kWh/m3 (source: EI1) 
+    efficiency_heat = 0.55;
+    efficiency_el = 0.3;  
+#VARIABLES
+    internal: investment_cost;
+    internal integer: num_chps; 
+    //internal: total_energy_input[t];
+    external: electricity_generated[T]; // kWh/h
+    external: consumption_heat[T];
+    external: consumption_gas[T];
+#CONSTRAINTS
+    num_chps >= 0;
+    consumption_heat[t] == demand_heat[mod(t, 8711)];
+    //total_energy_input[t] == consumption_heat[t] / efficiency_heat;
+    //electricity_generated[t] == efficiency_el*total_energy_input[t]; // add to hyperedge
+    electricity_generated[t] == efficiency_el*(consumption_heat[t] / efficiency_heat);
+    consumption_gas[t] == (demand_heat[mod(t, 8711)] / efficiency_heat); // /heating_value;  da preis schon in kWh
+    // TO DO
+    investment_cost == annual_depreciation * num_chps;
+#OBJECTIVES
+    min: investment_cost;
