@@ -1,0 +1,50 @@
+#NODE ELEKTROLYSEUR
+#PARAMETERS
+    capex = 600;
+    depreciation = 20; 
+    annual_depreciation = capex / depreciation;
+    efficiency_elektrolyseur = 0.74; // Umwandlungsverluste von Strom in Wasserstoff
+    efficiency_methanization = 0.86;
+    //TODO: KIT hat Wirkungsgrad von 76% (Projekt HELMETH)
+    //water_cost = 0.000000005; // €/liter
+    //co2_costs = 0; // Um 1 kw Erdgas zu erzeugen, wird x CO2 benötigt mit den jeweiligen Kosten
+#VARIABLES
+    internal: investment_cost_elektrolyseur;
+    internal: investment_cost_methanization;
+    internal integer: capacity_elektrolyseur; //capacity in kwP
+    internal integer: capacity_methanization;
+    external: hydrogen[T];
+    external: electricity[T];
+    external: gas[T]; //menge an gas die durch die Methanisierung hergestellt wird
+    //internal: operating_cost_elektrolyseur[T];
+    //internal: operating_cost_methanization[T];
+    internal: total_investment_costs;
+#CONSTRAINTS
+    capacity_elektrolyseur >= 0;
+    capacity_elektrolyseur <= 100; 
+    hydrogen[t] == electricity[t] *efficiency_elektrolyseur;
+    hydrogen[t] <= capacity_elektrolyseur;
+    hydrogen[t] >=0;
+    investment_cost_elektrolyseur == annual_depreciation * capacity_elektrolyseur;
+    //operating_cost_elektrolyseur[t] == water_cost * hydrogen[t];
+    
+    capacity_methanization >= 0;
+    capacity_methanization <= 100; 
+    gas[t] == hydrogen[t] * efficiency_methanization;
+    gas[t] <= capacity_methanization;
+    gas[t] >= 0;
+    investment_cost_methanization == annual_depreciation * capacity_methanization;
+    
+    total_investment_costs == investment_cost_elektrolyseur + investment_cost_methanization;
+#OBJECTIVES
+    min: total_investment_costs; // + operating_cost_elektrolyseur[t];
+
+
+
+
+//#HYPEREDGE ELECTRICITY
+//    DISTRIBUTION_EL.electricity_import[t] + SOLAR_PV.solar_generated[t] == DEMAND_EL.consumption_el[t] + ELEKTROLYSEUR.electricity[t];
+    
+
+//#HYPEREDGE POWER_BALANCE
+//    DISTRIBUTION_GAS.gas_import_amount[t] + ELEKTROLYSEUR.gas[t] == DEMAND_GAS.consumption_gas[t];
