@@ -3,7 +3,7 @@
 #TIMEHORIZON
 T = 365 * 24; // number of hours in two years
 
-NODE CHP_PLANT
+#NODE CHP_PLANT
 #PARAMETERS
     capex = 550 ; //kosten pro kW
     depreciation = 15; //Abschreibungsdauer beträgt 15 Jahre
