@@ -39,10 +39,8 @@ T = 365 * 24; // number of hours in two years
 #CONSTRAINTS
     capacity >= 0;
     capacity <= 100; //Speicher darf max 100 kWh groß sein
-    
     soc[t] >= 0;
     soc[t] <= capacity;
-
     discharge[t] <= power;
     discharge[t] >= -power;
     -discharge[t] <= capacity - soc[t];
@@ -56,7 +54,7 @@ T = 365 * 24; // number of hours in two years
 
 #NODE DEMAND_EL
 #PARAMETERS  
-    demand_el = import "../data/demand/LastprofilHaushalt.csv";
+    demand_el = import "../data/LastprofilHaushalt.csv";
 #VARIABLES
     external: consumption_el[T];
 #CONSTRAINTS
@@ -83,6 +81,22 @@ T = 365 * 24; // number of hours in two years
     WIND_PLANT.wind_generated[t] + BATTERY.discharge[t] + 
     CHP_PLANT.electricity_generated[t] == DEMAND_EL.consumption_el[t];  
 
+#NODE DEMAND_GAS
+#PARAMETERS 
+    demand_gas = import "../data/LastprofilHaushaltGas.csv";
+#VARIABLES
+    external: consumption_gas[T];
+#CONSTRAINTS
+    consumption_gas[t] == demand_gas[mod(t, 8711)];
+
+
+#NODE DEMAND_HEAT
+#PARAMETERS 
+    demand_heat = import "../data/LastprofilHaushaltGas.csv";
+#VARIABLES
+    external: consumption_heat[T];
+#CONSTRAINTS
+    consumption_heat[t] == demand_heat[mod(t, 8711)];
 
 #NODE DISTRIBUTION_GAS
 #PARAMETERS
@@ -111,6 +125,6 @@ T = 365 * 24; // number of hours in two years
 
 #HYPEREDGE POWER_BALANCE
 #CONSTRAINTS
-    DISTRIBUTION_HEAT.heat_import_amount[t] == CHP_PLANT.consumption_heat[t];
-    DISTRIBUTION_GAS.gas_import_amount[t] == CHP_PLANT.consumption_gas[t];
+    DISTRIBUTION_HEAT.heat_import_amount[t] + CHP_PLANT.heat_generated[t] == DEMAND_HEAT.consumption_heat[t];
+    DISTRIBUTION_GAS.gas_import_amount[t] == CHP_PLANT.consumption_gas[t] + CHP_PLANT.consumption_gas[t];
 
