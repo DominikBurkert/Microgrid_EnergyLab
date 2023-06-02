@@ -6,7 +6,7 @@ T = 365 * 24; // number of hours in two years
 #NODE CHP_PLANT
 #PARAMETERS
     demand_heat = import "../data/LastprofilHaushaltGas.csv";
-    capex = 20000 ; //kosten für einen BHKW mit 10 kW 
+    capex = 550 ; //kosten pro kW
     depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
     //capacity = 10; // kWel (Mikro-BHKW)
