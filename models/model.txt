@@ -15,7 +15,7 @@ T = 365 * 24; // number of hours in two years
 #CONSTRAINTS
     capacity >= 0;
     capacity <= 100; 
-    solar_generated[t] == sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
+    solar_generated[t] <= sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
     investment_cost == annual_depreciation * capacity;
 #OBJECTIVES
     min: investment_cost;

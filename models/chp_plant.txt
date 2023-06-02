@@ -3,26 +3,26 @@
 #TIMEHORIZON
 T = 365 * 24; // number of hours in two years
 
-#NODE CHP_PLANT
+NODE CHP_PLANT
 #PARAMETERS
     capex = 550 ; //kosten pro kW
     depreciation = 15; //Abschreibungsdauer beträgt 15 Jahre
     annual_depreciation = capex / depreciation; // annual_depreciation per kW
     heating_value = 10.5; // Heating value: 10-11.1 kWh/m3 (source: EI1) 
     thermal_efficiency = 0.6;
-    efficiency_el = 0.3;  
+    el_efficiency = 0.3;  
 #VARIABLES
     internal: investment_cost;
-    internal: thermal_power; // the thermal power of the chp plant in kW (thermische Leistung)
+    //internal: thermal_power; // the thermal power of the chp plant in kW (thermische Leistung)
+    internal: el_power;
     external: electricity_generated[T]; // kWh/h
     external: heat_generated[T];
     external: consumption_gas[T];
 #CONSTRAINTS
-    thermal_power >= 0;
-    heat_generated[t] == thermal_power;
-    consumption_gas[t] == thermal_power / thermal_efficiency;
-    electricity_generated[t] == efficiency_el * (thermal_power / thermal_efficiency*heating_value);
-    //electricity_generated[t] = electrical_power;
-    investment_cost == annual_depreciation * thermal_power;
+    el_power >= 0;
+    electricity_generated[t] <= el_power;
+    consumption_gas[t] == el_power / (el_efficiency * heating_value);
+    heat_generated[t] == el_efficiency*el_power / (el_efficiency * heating_value);
+    investment_cost == annual_depreciation * el_power;
 #OBJECTIVES
     min: investment_cost;
