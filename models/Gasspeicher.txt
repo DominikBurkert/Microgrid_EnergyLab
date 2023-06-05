@@ -8,7 +8,7 @@ T = 365 * 24; // number of hours in two years
     capex = 1200; //kosten für 1kWp ca. 1300€
     depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
-    efficiency = 0.5;
+    efficiency = 0.8;
     power = 3; //maximale Leistung beträgt 3kw (d.h. es können max 3kwh pro Stunde in den Speicher geladen/entladen werden
 #VARIABLES
     internal integer: capacity;
