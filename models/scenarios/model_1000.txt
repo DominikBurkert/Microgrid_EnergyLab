@@ -1,0 +1,123 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
+
+#NODE SOLAR_PV
+#PARAMETERS
+    capex = 1300; //kosten für 1kWp ca. 1300€
+    depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
+    annual_depreciation = capex / depreciation;
+    sun = import "../../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
+#VARIABLES
+    internal: investment_cost;
+    internal integer: capacity; //capacity in kwP
+    external: solar_generated[T];
+#CONSTRAINTS
+    capacity >= 0;
+    capacity <= 100; 
+    solar_generated[t] <= sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
+    solar_generated[t] >=0;
+    investment_cost == annual_depreciation * capacity;
+#OBJECTIVES
+    min: investment_cost;
+
+
+#NODE WIND_PLANT = import WIND_PLANT from "../components/wind_plant.txt";
+
+#NODE CHP_PLANT = import CHP_PLANT from "../components/chp_plant.txt";
+
+
+#NODE BATTERY = import BATTERY from "../components/battery_storage_old.txt";
+//#NODE BATTERY = import BATTERY from "../components/battery_storage.txt";
+
+#NODE DEMAND_EL
+#PARAMETERS  
+    demand_el = import "../../data/LastprofilHaushalt.csv";
+#VARIABLES
+    external: consumption_el[T];
+#CONSTRAINTS
+    consumption_el[t] == demand_el[mod(t, 8760)]*100; //bei data demand_haushalt 8761
+
+    
+#NODE DISTRIBUTION_EL
+#PARAMETERS
+    price_electricity = import "../../data/electricity_market_prices_2019.csv";
+#VARIABLES
+    internal: operating_cost_electricity[T];
+    external: electricity_import[T];
+#CONSTRAINTS
+    electricity_import[t] >= 0;
+    operating_cost_electricity[t] == price_electricity[mod(t,8760)] * electricity_import[mod(t, 8760)];
+    
+#OBJECTIVES
+    min: operating_cost_electricity[t];
+
+
+#HYPEREDGE ELECTRICITY
+#CONSTRAINTS
+    DISTRIBUTION_EL.electricity_import[t] + SOLAR_PV.solar_generated[t] + 
+    WIND_PLANT.wind_generated[t] 
+    +  BATTERY.discharge[t]
+    + CHP_PLANT.electricity_generated[t]
+    == 
+    DEMAND_EL.consumption_el[t] 
+    + BATTERY.charge[t]
+    + ELEKTROLYSEUR.electricity[t]; 
+
+//GAS SECTOR
+#NODE ELEKTROLYSEUR = import ELEKTROLYSEUR from "../components/electrolyser.txt";
+
+#NODE GAS_STORAGE = import GAS_STORAGE from "../components/gas_storage.txt";
+
+
+#NODE DISTRIBUTION_GAS
+#PARAMETERS
+    price_gas = import "../../data/gas_market_prices_2019.csv";
+#VARIABLES
+    internal: operating_cost_gas[T];
+    external: gas_import_amount[T];
+#CONSTRAINTS
+    gas_import_amount[t] >= 0;
+    //gas_import_amount[t] <= 50;
+    operating_cost_gas[t] == price_gas[mod(t, 8760)] * gas_import_amount[t];
+#OBJECTIVES
+    min: operating_cost_gas[t];
+
+#NODE DEMAND_HEAT
+#PARAMETERS 
+    demand_heat = import "../../data/LastprofilHaushaltGas.csv";
+#VARIABLES
+    external: consumption_heat[T];
+#CONSTRAINTS
+    consumption_heat[t] == demand_heat[mod(t, 8711)]*100;
+
+#NODE DISTRIBUTION_HEAT
+#PARAMETERS
+    price_heat = 0.0608; // 6,08ct/kWh -> 0.0608€/kWh
+#VARIABLES
+    internal: operating_cost_heat[T];
+    external: heat_import_amount[T];
+#CONSTRAINTS
+    heat_import_amount[t] >= 0;
+    operating_cost_heat[t] == price_heat * heat_import_amount[t];
+#OBJECTIVES
+    min: operating_cost_heat[t];
+
+
+#HYPEREDGE POWER_BALANCE
+#CONSTRAINTS
+
+//HEAT CONTSTRAINTS
+    DISTRIBUTION_HEAT.heat_import_amount[t]
+   +  CHP_PLANT.heat_generated[t]
+    == DEMAND_HEAT.consumption_heat[t];
+    
+//GAS CONSTRAINTS
+    DISTRIBUTION_GAS.gas_import_amount[t]
+    + GAS_STORAGE.discharge[t]
+    == 
+    //DEMAND_GAS.consumption_gas[t]+ 
+    ELEKTROLYSEUR.gas[t]
+    + CHP_PLANT.consumption_gas[t]
+    + GAS_STORAGE.charge[t];
+    
