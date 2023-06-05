@@ -7,7 +7,7 @@ T = 365 * 24; // number of hours in two years
     capex = 1300; //kosten für 1kWp ca. 1300€
     depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
-    sun = import "../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
+    sun = import "../../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
 #VARIABLES
     internal: investment_cost;
     internal integer: capacity; //capacity in kwP
@@ -22,16 +22,16 @@ T = 365 * 24; // number of hours in two years
     min: investment_cost;
 
 
-#NODE WIND_PLANT = import WIND_PLANT from "wind_plant.txt";
+#NODE WIND_PLANT = import WIND_PLANT from "../components/wind_plant.txt";
 
-#NODE CHP_PLANT = import CHP_PLANT from "chp_plant.txt";
+#NODE CHP_PLANT = import CHP_PLANT from "../components/chp_plant.txt";
 
-#NODE BATTERY = import BATTERY from "BatteryStorage_old.txt";
-//#NODE BATTERY = import BATTERY from "BatteryStorage.txt";
+#NODE BATTERY = import BATTERY from "../components/battery_storage_old.txt";
+//#NODE BATTERY = import BATTERY from "../components/battery_storage.txt";
 
 #NODE DEMAND_EL
 #PARAMETERS  
-    demand_el = import "../data/LastprofilHaushalt.csv";
+    demand_el = import "../../data/LastprofilHaushalt.csv";
 #VARIABLES
     external: consumption_el[T];
 #CONSTRAINTS
@@ -40,7 +40,7 @@ T = 365 * 24; // number of hours in two years
     
 #NODE DISTRIBUTION_EL
 #PARAMETERS
-    price_electricity = import "../data/electricity_market_prices_2019.csv";
+    price_electricity = import "../../data/electricity_market_prices_2019.csv";
 #VARIABLES
     internal: operating_cost_electricity[T];
     external: electricity_import[T];
@@ -64,15 +64,14 @@ T = 365 * 24; // number of hours in two years
     + ELEKTROLYSEUR.electricity[t]; 
 
 //GAS SECTOR
-#NODE ELEKTROLYSEUR = import ELEKTROLYSEUR from "Elektrolyseur.txt";
+#NODE ELEKTROLYSEUR = import ELEKTROLYSEUR from "../components/electrolyser.txt";
 
-#NODE GAS_STORAGE = import GAS_STORAGE from "Gasspeicher.txt";
-
+#NODE GAS_STORAGE = import GAS_STORAGE from "../components/gas_storage.txt";
 
 
 #NODE DISTRIBUTION_GAS
 #PARAMETERS
-    price_gas = import "../data/gas_market_prices_2019.csv";
+    price_gas = import "../../data/gas_market_prices_2019.csv";
 #VARIABLES
     internal: operating_cost_gas[T];
     external: gas_import_amount[T];
@@ -85,7 +84,7 @@ T = 365 * 24; // number of hours in two years
 
 #NODE DEMAND_HEAT
 #PARAMETERS 
-    demand_heat = import "../data/LastprofilHaushaltGas.csv";
+    demand_heat = import "../../data/LastprofilHaushaltGas.csv";
 #VARIABLES
     external: consumption_heat[T];
 #CONSTRAINTS
