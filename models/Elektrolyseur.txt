@@ -1,3 +1,7 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in one year
+
+
 #NODE ELEKTROLYSEUR
 #PARAMETERS
     capex = 600;

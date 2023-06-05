@@ -1,13 +1,13 @@
 #TIMEHORIZON
-T = 365 * 24; // number of hours in two years
+T = 365 * 24; // number of hours in one year
 
 #NODE WIND_PLANT
 #PARAMETERS
     capex = 30000; //kosten für eine Windanlage mit 10 kW
     depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
-    capacity_factor_wind = import "../data/wind_capacity_factors.csv";
-    capacity = 10; // kW
+    capacity_factor_wind = import "../data/wind_capacity_factors19.csv";
+    power = 10; // kW
 #VARIABLES
     internal: investment_cost;
     internal integer: num_plants; 
@@ -15,7 +15,8 @@ T = 365 * 24; // number of hours in two years
 #CONSTRAINTS
     num_plants >= 0;
     //num_plants <= 10; 
-    wind_generated[t] == capacity_factor_wind[mod(t, 8760)]*num_plants*capacity; //8760 is the length of our wind data 
+    wind_generated[t] <= capacity_factor_wind[mod(t, 8760)]*num_plants*power; //8760 is the length of our wind data 
+    wind_generated[t] >= 0;
     investment_cost == annual_depreciation * num_plants;
 #OBJECTIVES
     min: investment_cost;
