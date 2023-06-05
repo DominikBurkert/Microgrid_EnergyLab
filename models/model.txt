@@ -69,14 +69,6 @@ T = 365 * 24; // number of hours in two years
 #NODE GAS_STORAGE = import GAS_STORAGE from "Gasspeicher.txt";
 
 
-#NODE DEMAND_GAS
-#PARAMETERS 
-    demand_gas = import "../data/LastprofilHaushaltGas.csv";
-#VARIABLES
-    external: consumption_gas[T];
-#CONSTRAINTS
-    consumption_gas[t] == demand_gas[mod(t, 8711)];
-
 
 #NODE DISTRIBUTION_GAS
 #PARAMETERS
@@ -124,8 +116,8 @@ T = 365 * 24; // number of hours in two years
     DISTRIBUTION_GAS.gas_import_amount[t]
     + GAS_STORAGE.discharge[t]
     == 
-    DEMAND_GAS.consumption_gas[t]
-    + ELEKTROLYSEUR.gas[t]
+    //DEMAND_GAS.consumption_gas[t]+ 
+    ELEKTROLYSEUR.gas[t]
     + CHP_PLANT.consumption_gas[t]
     + GAS_STORAGE.charge[t];
     
