@@ -1,3 +1,7 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
+
 #NODE BATTERY
 //TODO Aging, andere Investmentkosten bei steigender Kapazität
 //TODO efficiency. Wie hoch ist die?
@@ -5,8 +9,9 @@
     capex = 1200; //kosten für 1kWp ca. 1300€
     depreciation = 12; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
-    efficiency = 0.5;
-    power = 3; //maximale Leistung beträgt 3kw (d.h. es können max 3kwh pro Stunde in den Speicher geladen/entladen werden
+    efficiency = 1;
+    power = 5; //maximale Leistung beträgt 3kw (d.h. es können max 3kwh pro Stunde in den Speicher geladen/entladen werden
+    //self_consumption = 
 #VARIABLES
     internal integer: capacity;
     internal: investment_cost;
@@ -29,6 +34,10 @@
     soc[0] == soc[T-1]; //batterie soll gleichen Ladestand am Anfang und am Ende haben
     investment_cost == annual_depreciation * capacity;
 #OBJECTIVES
-    min: investment_cost; 
+    min: investment_cost;
+
+
+
+    
 //#HYPEREDGE ELECTRICITY
 //    DISTRIBUTION_EL.electricity_import[t] + SOLAR_PV.solar_generated[t] + BATTERY.discharge[t] == DEMAND_EL.consumption_el[t] + BATTERY.charge[t];

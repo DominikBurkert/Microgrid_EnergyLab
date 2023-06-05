@@ -1,3 +1,6 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
 #NODE GAS_STORAGE
 //TODO Aging, andere Investmentkosten bei steigender Kapazität
 //TODO efficiency. Wie hoch ist die?
