@@ -14,7 +14,7 @@ T = 365 * 24; // number of hours in one year
     max_power = 100; // kW
 #VARIABLES
     internal: investment_cost;
-    internal: el_power;
+    internal integer: el_power;
     external: electricity_generated[T]; // kWh/h
     external: heat_generated[T];
     external: consumption_gas[T];

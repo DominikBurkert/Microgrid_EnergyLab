@@ -15,7 +15,8 @@ T = 365 * 24; // number of hours in two years
 #CONSTRAINTS
     capacity >= 0;
     capacity <= 100; 
-    solar_generated[t] == sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
+    solar_generated[t] <= sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
+    solar_generated[t] >=0;
     investment_cost == annual_depreciation * capacity;
 #OBJECTIVES
     min: investment_cost;
@@ -34,7 +35,7 @@ T = 365 * 24; // number of hours in two years
 #VARIABLES
     external: consumption_el[T];
 #CONSTRAINTS
-    consumption_el[t] == demand_el[mod(t, 8760)]*10; //bei data demand_haushalt 8761
+    consumption_el[t] == demand_el[mod(t, 8760)]; //bei data demand_haushalt 8761
 
     
 #NODE DISTRIBUTION_EL
@@ -62,8 +63,6 @@ T = 365 * 24; // number of hours in two years
     + BATTERY.charge[t]
     + ELEKTROLYSEUR.electricity[t]; 
 
-
-
 //GAS SECTOR
 #NODE ELEKTROLYSEUR = import ELEKTROLYSEUR from "Elektrolyseur.txt";
 
@@ -76,7 +75,7 @@ T = 365 * 24; // number of hours in two years
 #VARIABLES
     external: consumption_gas[T];
 #CONSTRAINTS
-    consumption_gas[t] == demand_gas[mod(t, 8711)]*10;
+    consumption_gas[t] == demand_gas[mod(t, 8711)];
 
 
 #NODE DISTRIBUTION_GAS
