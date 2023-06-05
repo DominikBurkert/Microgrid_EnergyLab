@@ -2,7 +2,7 @@
 //TODO Aging, andere Investmentkosten bei steigender Kapazität
 //TODO efficiency. Wie hoch ist die?
 #PARAMETERS
-    capex = 1200; //kosten für 1kWp ca. 1300€
+    capex = 350; //kosten für 1kWp ca. 1300€
     depreciation = 12; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
     efficiency = 0.5;
