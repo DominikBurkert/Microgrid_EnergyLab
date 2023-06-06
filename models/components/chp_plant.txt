@@ -20,10 +20,11 @@ T = 365 * 24; // number of hours in one year
     external: consumption_gas[T];
 #CONSTRAINTS
     el_power >= 0;
-    el_power <= max_power;
+    //el_power <= max_power;
     electricity_generated[t] <= el_power;
-    consumption_gas[t] == electricity_generated[t] / (el_efficiency);// * heating_value);
-    heat_generated[t] == thermal_efficiency*electricity_generated[t] / (el_efficiency);// * heating_value);
+    consumption_gas[t] == electricity_generated[t] / el_efficiency;
+    // heat_generated = thermal_efficiency*consumption_gas[t]; 
+    heat_generated[t] == thermal_efficiency*electricity_generated[t] / el_efficiency;
     heat_generated[t] >= 0;
     electricity_generated[t] >= 0;
     investment_cost == annual_depreciation * el_power;

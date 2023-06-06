@@ -1,26 +1,7 @@
 #TIMEHORIZON
 T = 365 * 24; // number of hours in two years
 
-
-#NODE SOLAR_PV
-#PARAMETERS
-    capex = 1300; //kosten für 1kWp ca. 1300€
-    depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
-    annual_depreciation = capex / depreciation;
-    sun = import "../../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
-#VARIABLES
-    internal: investment_cost;
-    internal integer: capacity; //capacity in kwP
-    external: solar_generated[T];
-#CONSTRAINTS
-    capacity >= 0;
-    capacity <= 100; 
-    solar_generated[t] <= sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
-    solar_generated[t] >=0;
-    investment_cost == annual_depreciation * capacity;
-#OBJECTIVES
-    min: investment_cost;
-
+#NODE SOLAR_PV = import SOLAR_PV from "../components/SOLAR_PV.txt";
 
 #NODE WIND_PLANT = import WIND_PLANT from "../components/wind_plant.txt";
 

@@ -4,7 +4,9 @@ T = 365 * 24; // number of hours in one year
 
 #NODE ELEKTROLYSEUR
 #PARAMETERS
-    capex = 600;
+    capex_methanation = 700;
+    capex_electrolysis = 722;
+    capex = capex_electrolysis + capex_methanation; // capex=600 => invest
     depreciation = 20; 
     annual_depreciation = capex / depreciation;
     efficiency_elektrolyseur = 0.74; // Umwandlungsverluste von Strom in Wasserstoff
