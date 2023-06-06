@@ -2,7 +2,7 @@
 T = 365 * 24; // number of hours in one year
 
 
-#NODE SOLAR_PV = import SOLAR_PV from "../components/SOLAR_PV.txt";
+#NODE SOLAR_PV = import SOLAR_PV from "../components/solar_pv.txt";
 
 #NODE BATTERY = import BATTERY from "../components/battery_storage_old.txt";
 
