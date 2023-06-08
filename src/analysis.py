@@ -1,7 +1,9 @@
 import logging
 import time
+from typing import Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from gboml import GbomlGraph
 
@@ -61,23 +63,27 @@ def show_results(solution_dict: dict, days: int = 7):
                 plt.show()
 
 
-def get_results_new(scenarios: dict):
+def get_results_new(scenarios: dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    This function reads the solution that gboml creates as an
-    output and prints the results in the stdout for better readability
-    and faster interpretation of the results. For scalar results like
-    investment costs, it just prints the result. For continuous variables
-    it creates and prints a plot over the first seven days but the number
-    of days for the visualization can be given as a parameter and thus a
-    visualization for a longer period of time can be created.
+    This function runs gboml with all of the given scenarios and writes
+    the results to two separate dataframes.
 
     Parameters
     ----------
-    model_txt : list
-        A list containing the models you want to run, e.g. ['model.txt','benchmark.txt']
+    scenarios : dict
+        A dict containing all the models you want to run and the respective
+        number of households, e.g. {'model.txt': 10, 'benchmark.txt': 10}
+
+    Returns
+    -------
+    tuple
+        A tuple of two tables (pd.DataFrame). The first one contains the
+        objective investment costs overall and per node. The second one
+        contains the optimal parameters for each node.
     """
     result = pd.DataFrame(
-        columns=["execution_time", "num_households"], index=scenarios.keys()
+        columns=["execution_time", "num_households", "self_consumption(%)"],
+        index=scenarios.keys(),
     )
     objective_result = pd.DataFrame(
         columns=[
@@ -107,6 +113,9 @@ def get_results_new(scenarios: dict):
         )
         objective_result.loc[model, "status"] = solution_dict["solution"]["status"]
         result.loc[model, "num_households"] = num_households
+        result.loc[model, "self_consumption(%)"] = _calculate_self_consumption(
+            solution_dict
+        )
         objective_result.loc[model, "num_households"] = num_households
         elements = solution_dict["solution"]["elements"]
         for element in elements.keys():
@@ -123,3 +132,28 @@ def get_results_new(scenarios: dict):
                     column = f"{element}: {variable}"
                     result.loc[model, column] = var_values[0]
     return objective_result, result
+
+
+def _calculate_self_consumption(solution_dict):
+    """ """
+    el = solution_dict["solution"]["elements"]
+    import_el = np.sum(
+        el["DISTRIBUTION_EL"]["variables"]["electricity_import"]["values"]
+    )
+    demand_el = np.sum(el["DEMAND_EL"]["variables"]["consumption_el"]["values"])
+    import_gas = np.sum(
+        el["DISTRIBUTION_GAS"]["variables"]["gas_import_amount"]["values"]
+    )
+    demand_gas, import_heat, demand_heat = 0, 0, 0
+    if "CHP_PLANT" in solution_dict["solution"]["elements"].keys():  # ???
+        demand_gas = np.sum(el["CHP_PLANT"]["variables"]["consumption_gas"]["values"])
+    if "DISTRIBUTION_HEAT" in solution_dict["solution"]["elements"].keys():
+        import_heat = np.sum(
+            el["DISTRIBUTION_HEAT"]["variables"]["heat_import_amount"]["values"]
+        )
+        demand_heat = np.sum(
+            el["DEMAND_HEAT"]["variables"]["consumption_heat"]["values"]
+        )
+    demand = demand_el + demand_heat + demand_gas
+    import_all = import_el + import_gas + import_heat
+    return round((1 - import_all / demand) * 100, 2)
