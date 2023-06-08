@@ -2,7 +2,24 @@
 T = 365 * 24; // number of hours in one year
 
 
-#NODE SOLAR_PV = import SOLAR_PV from "../components/solar_pv.txt";
+#NODE SOLAR_PV
+#PARAMETERS
+    capex = 1300; //kosten für 1kWp ca. 1300€
+    depreciation = 20; //Abschreibungsdauer beträgt 20 Jahre
+    annual_depreciation = capex / depreciation;
+    sun = import "../../data/pv_data/pv_cn.csv"; //csv Datei bestehend aus 8784 Vorhersagen für die Sonneneinstrahlung zum Zeitpunkt t^
+#VARIABLES
+    internal: investment_cost;
+    internal integer: capacity; //capacity in kwP
+    external: solar_generated[T];
+#CONSTRAINTS
+    capacity >= 0;
+    capacity <= 100; 
+    solar_generated[t] <= sun[mod(t, 8784)]*capacity; //8784 is the length of our solar data 
+    solar_generated[t] >= 0;
+    investment_cost == annual_depreciation * capacity;
+#OBJECTIVES
+    min: investment_cost;
 
 #NODE BATTERY = import BATTERY from "../components/battery_storage_old.txt";
 
@@ -16,14 +33,13 @@ T = 365 * 24; // number of hours in one year
     consumption_el[t] == demand_el[mod(t, 8760)]; //bei data demand_haushalt 8761
     
     
-#NODE DISTRIBUTION_EL = import DISTRIBUTION_EL from "../components/distribution_el.txt";
-
+#NODE DISTRIBUTION_EL = import DISTRIBUTION_EL from "../components/distribution_el_with_export.txt";
 
 #HYPEREDGE ELECTRICITY
 #CONSTRAINTS
     DISTRIBUTION_EL.electricity_import[t] + SOLAR_PV.solar_generated[t] 
-    + BATTERY.discharge[t] == DEMAND_EL.consumption_el[t] + BATTERY.charge[t];
-
+    + BATTERY.discharge[t] == DEMAND_EL.consumption_el[t] + BATTERY.charge[t]
+    + DISTRIBUTION_EL.electricity_export[t];
 
 #NODE DEMAND_HEAT
 #PARAMETERS 

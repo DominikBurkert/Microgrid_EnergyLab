@@ -1,0 +1,26 @@
+#TIMEHORIZON
+T = 365 * 24; // number of hours in two years
+
+#NODE E_VEHICLE
+
+#PARAMETERS
+    //price = 1; //kosten für aufladen beträgt 50 ct/kWh
+    
+    load_profile = import "../../data/load_profile_eVehicle.csv"; //Ladeprofil für ein eAuto mit 40 kWh (24 timesteps) 
+    amount_e_vehicles = 1;
+    load_profile_all_vehicles = load_profile * amount_e_vehicles;
+    price = 0.5; //kosten für Laden beträgt 50 ct/kWh (sozusagen Einspeisevergütung)
+#VARIABLES
+    internal: revenue[T];
+    external: load_el[T]; //eingespeicherte Energie (sozusagen zusätzlicher Verbrauch)
+#CONSTRAINTS
+    load_el[t] <= load_profile_all_vehicles[mod(t, 24)];
+    load_el[t] >= 0;
+    //revenue[t] <= 100;
+    revenue[t] == load_el[t] * price;
+    revenue[t] >= 0;
+
+#OBJECTIVES
+    max: revenue[t];   
+
+ 
