@@ -3,13 +3,12 @@ T = 365 * 24; // number of hours in two years
 
 #NODE BATTERY
 //TODO Aging, andere Investmentkosten bei steigender Kapazität
-//TODO efficiency. Wie hoch ist die?
 #PARAMETERS
     capex = 1200; //kosten für 1kWp ca. 1300€
     depreciation = 12; //Abschreibungsdauer beträgt 20 Jahre
     annual_depreciation = capex / depreciation;
-    efficiency = 0.9 ;
-    power = 3; //maximale Leistung beträgt 3kw (d.h. es können max 3kwh pro Stunde in den Speicher geladen/entladen werden
+    efficiency = 0.85 ;
+    power = 5; //maximale Leistung beträgt 3kw (d.h. es können max 3kwh pro Stunde in den Speicher geladen/entladen werden
 #VARIABLES
     internal integer: capacity;
     internal: investment_cost;
@@ -27,7 +26,6 @@ T = 365 * 24; // number of hours in two years
     -discharge[t] <= capacity - soc[t]; 
     discharge[t] <= soc[t];
     soc[t+1] == soc[t] - discharge[t];
-    soc[0] == 0;
     soc[0] == soc[T-1];
     investment_cost == annual_depreciation * capacity;
 #OBJECTIVES
