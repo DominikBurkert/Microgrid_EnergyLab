@@ -3,7 +3,7 @@ T = 365 * 24; // number of hours in two years
 
 
 #NODE BATTERY
-//TODO Aging, andere Investmentkosten bei steigender Kapazität
+//TODO Aging, andere Investmentkosten bei steigender Kapazität.
 #PARAMETERS
     capex = 350; //kosten für 1kWp ca. 350€ (Quelle: Jakob MA)
     depreciation = 12; //Abschreibungsdauer beträgt 12 Jahre
