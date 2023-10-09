@@ -9,7 +9,7 @@ T = 365 * 24; // number of hours in one year
 
 #NODE DEMAND_EL
 #PARAMETERS 
-    demand_el = import "../../data/LastprofilHaushalt.csv";
+    demand_el = import "../../data/LastprofilHaushaltGas.csv";
 #VARIABLES
     external: consumption_el[T];
 #CONSTRAINTS
